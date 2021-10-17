@@ -30,7 +30,6 @@ int main()
     Vector2i mouseScreen_Position;
 
     Player player;
-    bool Dash = false;
 
     IntRect arena;
 
