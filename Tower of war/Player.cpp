@@ -96,6 +96,11 @@ void Player::moveDown()
 	pressedDown = true;
 }
 
+void Player::moveDash()
+{
+	dash = true;
+}
+
 void Player::stopLeft()
 {
 	pressedLeft = false;
@@ -133,6 +138,18 @@ void Player::update(float elapsedTime, Vector2i mousePosition)
 	if (pressedRight)
 	{
 		Player_Position.x += Player_Speed * elapsedTime;
+	}
+	if (dash && !dashcount)
+	{
+		timeSinceDash += elapsedTime;
+		Player_Speed *= 2;
+		dashcount = true;
+	}
+	if (timeSinceDash > 5 && dashcount)
+	{
+		dashcount = false;
+		timeSinceDash = 0;
+		Player_Speed /= 2;
 	}
 
 	Player_Sprite.setPosition(Player_Position);

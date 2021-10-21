@@ -148,13 +148,17 @@
     <ClCompile Include="Arena.cpp" />
     <ClCompile Include="createHorde.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Megic.cpp" />
     <ClCompile Include="Monsters.cpp" />
+    <ClCompile Include="pickUp.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="TextureHolder.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Arena.h" />
+    <ClInclude Include="Megic.h" />
     <ClInclude Include="Monsters.h" />
+    <ClInclude Include="pickUp.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="TextureHolder.h" />
   </ItemGroup>

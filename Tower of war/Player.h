@@ -7,6 +7,8 @@
 #include <SFML/System.hpp>
 #include "Arena.h"
 #include "TextureHolder.h"
+#include "Megic.h"
+#include "pickUp.h"
 using namespace sf;
 
 class Player
@@ -31,6 +33,9 @@ private:
 	int Player_MaxHealth;
 	Time Last_Hit;
 	float Player_Speed;
+	bool dash = false;
+	bool dashcount = false;
+	float timeSinceDash;
 
 public:
 	Player();
@@ -52,6 +57,7 @@ public:
 	void moveRight();
 	void moveUp();
 	void moveDown();
+	void moveDash();
 	
 	void stopLeft();
 	void stopRight();

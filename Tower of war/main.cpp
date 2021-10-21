@@ -20,6 +20,7 @@ int main()
 
     // create an sfml view for the main action
     View mainView(FloatRect(0, 0, resolution.x, resolution.y));
+    mainView.setSize(1400.f, 800.f);
 
     Clock clock;
     Time gameTimeTotal;
@@ -41,6 +42,18 @@ int main()
     int numMonstersAlive;
     Monsters* monsters = nullptr;
 
+    // Megic 
+    Megic fireball[100];
+    int currentFireball = 0;
+    int Mana = 6;
+    int maxMana = 6;
+    int castRate = 1; // ball/Sec.
+    Time LastPressed;
+
+    // Pickup
+    pickUp HealthPickUp(1);
+    pickUp ManaPickUp(2);
+
     while (window.isOpen())
     {
         Event event;
@@ -60,11 +73,6 @@ int main()
                 else if (event.key.code == Keyboard::Return && state == State::GAME_OVER)
                 {
                     state = State::LEVELING_UP;
-                }
-
-                if (state == State::PLAYING)
-                {
-
                 }
             }
         } // End event Polling
@@ -107,7 +115,29 @@ int main()
             else
             {
                 player.stopRight();
-            }            
+            }  
+            if (Keyboard::isKeyPressed(Keyboard::LShift))
+            {
+                player.moveDash();
+            }
+
+            // Cast fireball
+            if (Mouse::isButtonPressed(Mouse::Right))
+            {
+                if (gameTimeTotal.asMilliseconds() - LastPressed.asMilliseconds() > 1000 / castRate && Mana > 0)
+                {
+                    fireball[currentFireball].Cast(player.getPlayerCenter().x, player.getPlayerCenter().y, mouseWorld_Position.x, mouseWorld_Position.y);
+
+                    currentFireball++;
+                    if (currentFireball > 99)
+                    {
+                        currentFireball = 0;
+                    }
+
+                    LastPressed = gameTimeTotal;
+                    Mana--; 
+                }
+            }
         }
 
         // Player Leveling Up ///////////////////////////////////////////////////////////////////////////////////////
@@ -150,7 +180,10 @@ int main()
 
                 player.Spawn(arena, resolution, tileSize);
 
-                numMonsters = 0;
+                HealthPickUp.setArena(arena);
+                ManaPickUp.setArena(arena);
+
+                numMonsters = 5;
 
                 delete[] monsters;
                 monsters = createHorde(numMonsters, arena);
@@ -189,6 +222,19 @@ int main()
                     monsters[i].update(dt.asSeconds(), playerPosition);
                 }
             }
+
+            // Update fireball in flight
+            for (int i = 0; i < 100; i++) 
+            {
+                if (fireball[i].isInFlight())
+                {
+                    fireball[i].update(dtAsSecond);
+                }
+            }
+
+            // Update pickups
+            HealthPickUp.update(dtAsSecond);
+            ManaPickUp.update(dtAsSecond);
         }
 
         // Draw the scene ///////////////////////////////////////////////////////////////////////////////////////
@@ -197,12 +243,32 @@ int main()
             window.clear();
             window.setView(mainView);
             window.draw(backGround, &textureBackGround);
+
+            if (ManaPickUp.isSpawned())
+            {
+                window.draw(ManaPickUp.getSprite());
+            }
+            if (HealthPickUp.isSpawned())
+            {
+                window.draw(HealthPickUp.getSprite());
+            }
+
             window.draw(player.getSprite());
 
             for (int i = 0; i < numMonsters; i++)
             {
                 window.draw(monsters[i].getSprite());
             }
+
+            for (int i = 0; i < 100; i++)
+            {
+                if (fireball[i].isInFlight())
+                {
+                    window.draw(fireball[i].getShape());
+                }
+            }
+
+            
         }
         if (state == State::LEVELING_UP)
         {
