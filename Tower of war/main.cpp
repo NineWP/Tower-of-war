@@ -31,6 +31,8 @@ int main()
     Vector2i mouseScreen_Position;
 
     Player player;
+    Time LastDash;
+    int DashRate = 1; // Dash/Sec.
 
     IntRect arena;
 
@@ -46,8 +48,8 @@ int main()
     Megic fireball[100];
     int currentFireball = 0;
     int Mana = 6;
-    int maxMana = 6;
-    int castRate = 1; // ball/Sec.
+    int maxMana = 10;
+    int castRate = 10; // ball/Sec.
     Time LastPressed;
 
     // Pickup
@@ -118,7 +120,11 @@ int main()
             }  
             if (Keyboard::isKeyPressed(Keyboard::LShift))
             {
-                player.moveDash();
+                if (gameTimeTotal.asMilliseconds() - LastDash.asMilliseconds() > 1000 / DashRate)
+                {
+                    player.moveDash();
+                    LastDash = gameTimeTotal;
+                }
             }
 
             // Cast fireball

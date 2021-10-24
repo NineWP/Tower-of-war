@@ -141,15 +141,21 @@ void Player::update(float elapsedTime, Vector2i mousePosition)
 	}
 	if (dash && !dashcount)
 	{
-		timeSinceDash += elapsedTime;
-		Player_Speed *= 2;
+		Player_Speed *= dashSpeed;
 		dashcount = true;
 	}
-	if (timeSinceDash > 5 && dashcount)
+
+	if (dashcount)
 	{
-		dashcount = false;
+		timeSinceDash += elapsedTime;
+	}
+
+	if (timeSinceDash > dashTime && dashcount && dash)
+	{
 		timeSinceDash = 0;
-		Player_Speed /= 2;
+		Player_Speed /= dashSpeed;
+		dashcount = false;
+		dash = false;
 	}
 
 	Player_Sprite.setPosition(Player_Position);

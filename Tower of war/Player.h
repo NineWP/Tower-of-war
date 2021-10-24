@@ -16,6 +16,7 @@ class Player
 private:
 	const float startSpeed = 200;
 	const float startHealth = 100;
+	const float dashSpeed = 4;
 
 	Vector2f Player_Position;
 	Sprite Player_Sprite;
@@ -35,7 +36,8 @@ private:
 	float Player_Speed;
 	bool dash = false;
 	bool dashcount = false;
-	float timeSinceDash;
+	float timeSinceDash = 0;
+	float dashTime = 0.1;
 
 public:
 	Player();
