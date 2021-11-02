@@ -62,12 +62,12 @@ bool Monsters::hit()
 
 bool Monsters::Alive()
 {
-	return true;
+	return Monster_Alive;
 }
 
 FloatRect Monsters::getPosition()
 {
-	return FloatRect();
+	return Monster_Sprite.getGlobalBounds();
 }
 
 Sprite Monsters::getSprite()

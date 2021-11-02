@@ -6,12 +6,12 @@ pickUp::pickUp(int type)
 
 	if (Potion_Type == 1)
 	{
-		Potion_Sprite = Sprite(TextureHolder::GetTexture("graphics/health_pickup.png"));
+		Potion_Sprite = Sprite(TextureHolder::GetTexture("graphics/health_potion.png"));
 		Value = Health_Potion_Value;
 	}
 	else
 	{
-		Potion_Sprite = Sprite(TextureHolder::GetTexture("graphics/ammo_pickup.png"));
+		Potion_Sprite = Sprite(TextureHolder::GetTexture("graphics/mana_potion.png"));
 		Value = Mana_Potion_Value;
 	}
 
