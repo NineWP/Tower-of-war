@@ -4,7 +4,7 @@ class pickUp
 {
 private:
 	const int Health_Potion_Value = 50;
-	const int Mana_Potion_Value = 3;
+	const int Mana_Potion_Value = 5;
 	const int Start_Wait_Time = 10;
 	const int Start_Second_To_Live = 5;
 

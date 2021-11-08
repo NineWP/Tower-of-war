@@ -34,7 +34,7 @@ int main()
     Player player;
     Time LastDash;
     int DashRate = 1; // Dash/Sec.
-    int attackRate = 5;
+    int attackRate = 3;
 
     IntRect arena;
 
@@ -385,6 +385,15 @@ int main()
                 }
             }
 
+            // Update Boom 
+            for (int i = 0; i < 100; i++)
+            {
+                if (fireball[i].BoomIsActive())
+                {
+                    fireball[i].updateBoom(dtAsSecond);
+                }
+            }
+
             if (player.InAction())
             {
                 player.updateAttack(dtAsSecond);
@@ -399,10 +408,11 @@ int main()
             {
                 for (int j = 0; j < numMonsters; j++)
                 {
-                    if ((player.InAction() || fireball[i].isInFlight()) && monsters[j].Alive())
+                    if ((player.InAction() || fireball[i].isInFlight() || fireball[i].BoomIsActive()) && monsters[j].Alive())
                     {
                         if (fireball[i].getPosition().intersects(monsters[j].getPosition()))
                         {
+                            fireball[i].Boom();
                             fireball[i].stop();
 
                             if (monsters[j].hit())
@@ -421,8 +431,25 @@ int main()
                                 }
                             }
                         }
+                        else if (player.getAttackPosition().intersects(monsters[j].getPosition()))
+                        {
+                            if (monsters[j].hit())
+                            {
+                                score += 10;
+                                if (score > highScore)
+                                {
+                                    highScore = score;
+                                }
 
-                        if (player.getAttackPosition().intersects(monsters[j].getPosition()))
+                                numMonstersAlive--;
+
+                                if (numMonstersAlive == 0)
+                                {
+                                    state = State::LEVELING_UP;
+                                }
+                            }
+                        }
+                        else if (fireball[i].getBoomPosition().intersects(monsters[j].getPosition()))
                         {
                             if (monsters[j].hit())
                             {
@@ -532,13 +559,6 @@ int main()
                 window.draw(HealthPickUp.getSprite());
             }
 
-            for (int i = 0; i < numMonsters; i++)
-            {
-                window.draw(monsters[i].getSprite());
-            }
-
-            window.draw(player.getSprite());
-
             for (int i = 0; i < 100; i++)
             {
                 if (fireball[i].isInFlight())
@@ -546,6 +566,21 @@ int main()
                     window.draw(fireball[i].getShape());
                 }
             }
+
+            for (int i = 0; i < 100; i++)
+            {
+                if (fireball[i].BoomIsActive())
+                {
+                    window.draw(fireball[i].getBoomShape());
+                }
+            }
+
+            for (int i = 0; i < numMonsters; i++)
+            {
+                window.draw(monsters[i].getSprite());
+            }
+
+            window.draw(player.getSprite());
 
             if (player.InAction())
             {

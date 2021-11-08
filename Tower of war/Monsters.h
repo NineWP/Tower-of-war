@@ -11,9 +11,9 @@ private:
 	const float Slime_Speed = 20;
 
 	// Monster HP ///////////////////////////////////////////////
-	const float Org_HP = 5;
-	const float Goblin_HP = 1;
-	const float Slime_HP = 3;
+	const float Org_HP = 5000;
+	const float Goblin_HP = 1500;
+	const float Slime_HP = 3000;
 
 	const int Max_Varriance = 30;
 	const int OffSet = 101 - Max_Varriance;

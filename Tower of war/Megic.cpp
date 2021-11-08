@@ -4,11 +4,18 @@ Megic::Megic()
 {
 	Fireball_Shape.setRadius(10.f);
 	Fireball_Shape.setOrigin(5, 5);
+	BoomShape.setRadius(100.f);
+	BoomShape.setOrigin(50, 50);
 }
 
 bool Megic::isInFlight()
 {
 	return Ball_InFlight;
+}
+
+bool Megic::BoomIsActive()
+{
+	return BoomActive;
 }
 
 void Megic::Cast(float startX, float startY, float TargetX, float TargetY)
@@ -63,6 +70,11 @@ CircleShape Megic::getShape()
 	return Fireball_Shape;
 }
 
+CircleShape Megic::getBoomShape()
+{
+	return BoomShape;
+}
+
 void Megic::stop()
 {
 	Ball_InFlight = false;
@@ -83,4 +95,35 @@ void Megic::update(float elapsedTime)
 	{
 		Ball_InFlight = false;
 	}
+
+}
+
+void Megic::stopBoom()
+{
+	BoomActive = false;
+}
+
+void Megic::updateBoom(float elapsedTime)
+{
+	if (BoomActive)
+	{
+		Boomtime += elapsedTime;
+	}
+
+	if (Boomtime >= 2)
+	{
+		BoomActive = false;
+		Boomtime = 0;
+	}
+}
+
+FloatRect Megic::getBoomPosition()
+{
+	return BoomShape.getGlobalBounds();
+}
+
+void Megic::Boom()
+{
+	BoomActive = true;
+	BoomShape.setPosition(Fireball_Position);
 }
