@@ -5,6 +5,7 @@
 #include <SFML/Window.hpp>
 #include <SFML/Network.hpp>
 #include <SFML/System.hpp>
+#include <fstream>
 #include "Arena.h"
 #include "TextureHolder.h"
 #include "Megic.h"
@@ -39,6 +40,17 @@ private:
 	float timeSinceDash = 0;
 	float dashTime = 0.1;
 
+	//  Player Attack
+	Vector2f Attack_Position;
+	Sprite Attack_Sprite;
+	float Action_speed = 1000;
+
+	bool Attack_Inaction = false;
+
+	float Attack_DistanceX;
+	float Attack_DistanceY;
+	float distanceMaxX, distanceMaxY, distanceMinX, distanceMinY;
+
 public:
 	Player();
 
@@ -60,7 +72,7 @@ public:
 	void moveUp();
 	void moveDown();
 	void moveDash();
-	
+
 	void stopLeft();
 	void stopRight();
 	void stopUp();
@@ -73,6 +85,13 @@ public:
 	void increaseHealthLevel(int amount);
 	int getHealth();
 
+	// Attack Function
+	bool InAction();
+	void attack(float startX, float startY, float TargetX, float TargetY, Vector2i mousePosition);
+	FloatRect getAttackPosition();
+	Sprite getAttackSprite();
 
+	void stopAttack();
+	void updateAttack(float elapsedTime);
 };
 

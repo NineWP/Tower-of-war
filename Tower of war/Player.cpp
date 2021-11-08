@@ -10,6 +10,9 @@ Player::Player()
 	Player_Sprite.setTexture(Player_Texture);
 
 	Player_Sprite.setOrigin(25, 25);
+
+	Attack_Sprite = Sprite(TextureHolder::GetTexture("graphics/Attack.png"));
+	Attack_Sprite.setOrigin(25, 25);
 		
 }
 
@@ -99,6 +102,80 @@ void Player::moveDown()
 void Player::moveDash()
 {
 	dash = true;
+}
+
+bool Player::InAction()
+{
+	return Attack_Inaction;
+}
+
+void Player::attack(float startX, float startY, float TargetX, float TargetY, Vector2i mousePosition)
+{
+	Attack_Inaction = true;
+	Attack_Position.x = startX;
+	Attack_Position.y = startY;
+
+	float gradient = (startX - TargetX) / (startY - TargetY);
+
+	if (gradient < 0)
+	{
+		gradient *= -1;
+	}
+
+	float ratioXY = Action_speed / (1 + gradient);
+
+	Attack_DistanceX = ratioXY * gradient;
+	Attack_DistanceY = ratioXY;
+
+	if (TargetX < startX)
+	{
+		Attack_DistanceX *= -1;
+	}
+
+	if (TargetY < startY)
+	{
+		Attack_DistanceY *= -1;
+	}
+
+	float range = 50;
+	distanceMaxX = startX + range;
+	distanceMaxY = startY + range;
+	distanceMinX = startX - range;
+	distanceMinY = startY - range;
+
+	Attack_Sprite.setPosition(Attack_Position);
+	float angle = (atan2(mousePosition.y - Resolution.y / 2, mousePosition.x - Resolution.x / 2) * 180) / 3.141;
+
+	Attack_Sprite.setRotation(angle);
+}
+
+FloatRect Player::getAttackPosition()
+{
+	return Attack_Sprite.getGlobalBounds();
+}
+
+Sprite Player::getAttackSprite()
+{
+	return Attack_Sprite;
+}
+
+void Player::stopAttack()
+{
+	Attack_Inaction = false;
+}
+
+void Player::updateAttack(float elapsedTime)
+{
+	Attack_Position.x += Attack_DistanceX * elapsedTime;
+	Attack_Position.y += Attack_DistanceY * elapsedTime;
+
+	Attack_Sprite.setPosition(Attack_Position);
+
+	if (Attack_Position.x < distanceMinX || Attack_Position.x > distanceMaxX ||
+		Attack_Position.y < distanceMinY || Attack_Position.y > distanceMaxY)
+	{
+		Attack_Inaction = false;
+	}
 }
 
 void Player::stopLeft()

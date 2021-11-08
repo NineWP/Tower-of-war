@@ -2,6 +2,7 @@
 using namespace sf;
 
 int main()
+
 {
     TextureHolder holder;
 
@@ -33,6 +34,7 @@ int main()
     Player player;
     Time LastDash;
     int DashRate = 1; // Dash/Sec.
+    int attackRate = 5;
 
     IntRect arena;
 
@@ -49,8 +51,9 @@ int main()
     int currentFireball = 0;
     int Mana = 10;
     int maxMana = 10;
-    int castRate = 10; // ball/Sec.
+    int castRate = 5; // ball/Sec.
     Time LastPressed;
+    Time LastPressed_attack;
 
     // Pickup
     pickUp HealthPickUp(1);
@@ -84,7 +87,7 @@ int main()
     pauseText.setFont(font);
     pauseText.setCharacterSize(72);
     pauseText.setFillColor(Color::White);
-    pauseText.setPosition(350, 200);
+    pauseText.setPosition(750, 420);
     pauseText.setString("Press Enter \nto continue");
 
     // Game Over Text
@@ -103,12 +106,12 @@ int main()
     levelUpText.setPosition(80, 150);
     stringstream levelUpStream;
     levelUpStream <<
-        "Increased cast speed" <<
-        "\nIncreased max mana" <<
-        "\nIncreased max health" <<
-        "\nIncreased running speed" <<
-        "\nMore and better health potion" <<
-        "\nMore and better mana potion";
+        "1-Increased cast speed" <<
+        "\n2-Increased max mana" <<
+        "\n3-Increased max health" <<
+        "\n4-Increased running speed" <<
+        "\n5-More and better health potion" <<
+        "\n6-More and better mana potion";
     levelUpText.setString(levelUpStream.str());
 
     // Mana
@@ -125,6 +128,24 @@ int main()
     scoreText.setFillColor(Color::White);
     scoreText.setPosition(1500, 0);
 
+    // Load High score from file
+    ifstream inputfile("gamedata/score.txt");
+    if (inputfile.is_open())
+    {
+        inputfile >> highScore;
+        inputfile.close();
+    }
+
+    // High score
+    Text highScoreText;
+    highScoreText.setFont(font);
+    highScoreText.setCharacterSize(50);
+    highScoreText.setFillColor(Color::White);
+    highScoreText.setPosition(1500, 60);
+    stringstream s;
+    s << "High score : " << highScore;
+    highScoreText.setString(s.str());
+
     // Monster remaining
     Text textMonsterRemaining;
     textMonsterRemaining.setFont(font);
@@ -139,7 +160,7 @@ int main()
     waveNumberText.setFont(font);
     waveNumberText.setCharacterSize(50);
     waveNumberText.setFillColor(Color::White);
-    waveNumberText.setPosition(1500, 60);
+    waveNumberText.setPosition(1500, 800);
     waveNumberText.setString("Wave : 0");
 
     // Health bar
@@ -152,6 +173,7 @@ int main()
 
     // How often (in frame) should we update the HUD
     int fpsMeasurementFrameInterval = 1;
+
 
     while (window.isOpen())
     {
@@ -172,6 +194,11 @@ int main()
                 else if (event.key.code == Keyboard::Return && state == State::GAME_OVER)
                 {
                     state = State::LEVELING_UP;
+                    wave = 0;
+                    score = 0;
+                    Mana = maxMana;
+                    castRate = 5;
+                    player.resetPlayerState();
                 }
             }
         } // End event Polling
@@ -224,6 +251,16 @@ int main()
                 }
             }
 
+            // Attack with sword
+            if (Mouse::isButtonPressed(Mouse::Left))
+            {
+                if (gameTimeTotal.asMilliseconds() - LastPressed_attack.asMilliseconds() > 1000 / attackRate)
+                {
+                    player.attack(player.getPlayerCenter().x, player.getPlayerCenter().y, mouseWorld_Position.x, mouseWorld_Position.y, Mouse::getPosition());
+                    LastPressed_attack = gameTimeTotal;
+                }
+            }
+
             // Cast fireball
             if (Mouse::isButtonPressed(Mouse::Right))
             {
@@ -246,36 +283,47 @@ int main()
         // Player Leveling Up ///////////////////////////////////////////////////////////////////////////////////////
         if (state == State::LEVELING_UP)
         {
-            if (event.key.code == Keyboard::Num1)
+            if (event.key.code == Keyboard::Num1) // Increase castRate
             {
+                castRate++;
                 state = State::PLAYING;
             }
-            if (event.key.code == Keyboard::Num2)
+            if (event.key.code == Keyboard::Num2) // increase max mana
             {
+                maxMana += 5;
                 state = State::PLAYING;
             }
-            if (event.key.code == Keyboard::Num3)
+            if (event.key.code == Keyboard::Num3) // increase max health
             {
+                player.upgradeHealth();
                 state = State::PLAYING;
             }
-            if (event.key.code == Keyboard::Num4)
+            if (event.key.code == Keyboard::Num4) // increase running speed
             {
+                player.upgradeSpeed();
                 state = State::PLAYING;
             }
-            if (event.key.code == Keyboard::Num5)
+            if (event.key.code == Keyboard::Num5) // upgrade health potion
             {
+                HealthPickUp.upgrade();
                 state = State::PLAYING;
             }
-            if (event.key.code == Keyboard::Num6)
+            if (event.key.code == Keyboard::Num6) // upgrade mana potion
             {
+                ManaPickUp.upgrade();
                 state = State::PLAYING;
             }
 
             // Preparing the Arena ////////////////////////////////////////////////////////////////////////////////////
             if (state == State::PLAYING)
             {
-                arena.width = 500;
-                arena.height = 500;
+
+                srand((int)time(0));
+                int map_randomY = (rand() % 4) + 1;
+                int map_randomX = (rand() % 4) + 1;
+                wave++;
+                arena.width = 500 * map_randomX;
+                arena.height = 500 * map_randomY;
                 arena.left = 0;
                 arena.top = 0;
 
@@ -286,13 +334,15 @@ int main()
                 HealthPickUp.setArena(arena);
                 ManaPickUp.setArena(arena);
 
-                numMonsters = 2;
+                numMonsters = (3 * wave) + map_randomX;
 
                 delete[] monsters;
                 monsters = createHorde(numMonsters, arena);
                 numMonstersAlive = numMonsters;
 
                 clock.restart();
+
+
             }
         }
 
@@ -335,6 +385,11 @@ int main()
                 }
             }
 
+            if (player.InAction())
+            {
+                player.updateAttack(dtAsSecond);
+            }
+
             // Update pickups
             HealthPickUp.update(dtAsSecond);
             ManaPickUp.update(dtAsSecond);
@@ -344,12 +399,31 @@ int main()
             {
                 for (int j = 0; j < numMonsters; j++)
                 {
-                    if (fireball[i].isInFlight() && monsters[j].Alive())
+                    if ((player.InAction() || fireball[i].isInFlight()) && monsters[j].Alive())
                     {
                         if (fireball[i].getPosition().intersects(monsters[j].getPosition()))
                         {
                             fireball[i].stop();
 
+                            if (monsters[j].hit())
+                            {
+                                score += 10;
+                                if (score > highScore)
+                                {
+                                    highScore = score;
+                                }
+
+                                numMonstersAlive--;
+
+                                if (numMonstersAlive == 0)
+                                {
+                                    state = State::LEVELING_UP;
+                                }
+                            }
+                        }
+
+                        if (player.getAttackPosition().intersects(monsters[j].getPosition()))
+                        {
                             if (monsters[j].hit())
                             {
                                 score += 10;
@@ -383,6 +457,9 @@ int main()
                     if (player.getHealth() <= 0)
                     {
                         state = State::GAME_OVER;
+                        ofstream outputfile("gamedata/score.txt");
+                        outputfile << highScore;
+                        outputfile.close();
                     }
                 }
             }
@@ -403,7 +480,7 @@ int main()
             }
 
             // size up the health bar
-            healthBar.setSize(Vector2f(player.getHealth() * 3, 70));
+            healthBar.setSize(Vector2f(player.getHealth() * 3, 50));
 
             framesSinceLastHUD_Update++;
 
@@ -412,6 +489,7 @@ int main()
                 //Update game HUD text
                 stringstream ssMana;
                 stringstream ssScore;
+                stringstream ssHighScore;
                 stringstream ssWave;
                 stringstream ssMonsterAlive;
 
@@ -422,6 +500,10 @@ int main()
                 // Update Score Text
                 ssScore << "Score : " << score;
                 scoreText.setString(ssScore.str());
+
+                // Update High score Text
+                ssHighScore << "High score : " << highScore;
+                highScoreText.setString(ssHighScore.str());
 
                 // Update the Wave
                 ssWave << "Wave : " << wave;
@@ -465,12 +547,18 @@ int main()
                 }
             }
 
+            if (player.InAction())
+            {
+                window.draw(player.getAttackSprite());
+            }
+
             window.setView(hudView);
 
             // Draw HUD element
             window.draw(spriteManaIcon);
             window.draw(manaText);
             window.draw(scoreText);
+            window.draw(highScoreText);
             window.draw(healthBar);
             window.draw(waveNumberText);
             window.draw(textMonsterRemaining);
@@ -489,7 +577,6 @@ int main()
         {
             window.draw(spriteGameOver);
             window.draw(gameOverText);
-            window.draw(scoreText);
         }
 
         window.display();
