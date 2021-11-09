@@ -85,6 +85,8 @@ public:
 	void increaseHealthLevel(int amount);
 	int getHealth();
 
+	Vector2f getResolution();
+
 	// Attack Function
 	bool InAction();
 	void attack(float startX, float startY, float TargetX, float TargetY, Vector2i mousePosition);

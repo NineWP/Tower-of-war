@@ -266,7 +266,8 @@ int main()
             {
                 if (gameTimeTotal.asMilliseconds() - LastPressed.asMilliseconds() > 1000 / castRate && Mana > 0)
                 {
-                    fireball[currentFireball].Cast(player.getPlayerCenter().x, player.getPlayerCenter().y, mouseWorld_Position.x, mouseWorld_Position.y);
+                    fireball[currentFireball].RecieveResolution(player.getResolution());
+                    fireball[currentFireball].Cast(player.getPlayerCenter().x, player.getPlayerCenter().y, mouseWorld_Position.x, mouseWorld_Position.y, Mouse::getPosition());
 
                     currentFireball++;
                     if (currentFireball > 99)
@@ -342,7 +343,10 @@ int main()
 
                 clock.restart();
 
-
+                for (int i = 0; i < 100; i++)
+                {
+                    fireball[i].stopBoom();
+                }
             }
         }
 
@@ -410,7 +414,7 @@ int main()
                 {
                     if ((player.InAction() || fireball[i].isInFlight() || fireball[i].BoomIsActive()) && monsters[j].Alive())
                     {
-                        if (fireball[i].getPosition().intersects(monsters[j].getPosition()))
+                        if (fireball[i].getPosition().intersects(monsters[j].getPosition()) && fireball[i].isInFlight())
                         {
                             fireball[i].Boom();
                             fireball[i].stop();
@@ -449,7 +453,7 @@ int main()
                                 }
                             }
                         }
-                        else if (fireball[i].getBoomPosition().intersects(monsters[j].getPosition()))
+                        else if (fireball[i].getBoomPosition().intersects(monsters[j].getPosition()) && fireball[i].BoomIsActive())
                         {
                             if (monsters[j].hit())
                             {

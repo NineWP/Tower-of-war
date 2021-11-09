@@ -2,10 +2,11 @@
 
 Megic::Megic()
 {
-	Fireball_Shape.setRadius(10.f);
-	Fireball_Shape.setOrigin(5, 5);
+	Fireball_Shape = Sprite(TextureHolder::GetTexture("graphics/fire_ball.png"));
+	Fireball_Shape.setOrigin(20, 10);
 	BoomShape.setRadius(100.f);
 	BoomShape.setOrigin(50, 50);
+	BoomShape.setFillColor(Color::Red);
 }
 
 bool Megic::isInFlight()
@@ -18,7 +19,7 @@ bool Megic::BoomIsActive()
 	return BoomActive;
 }
 
-void Megic::Cast(float startX, float startY, float TargetX, float TargetY)
+void Megic::Cast(float startX, float startY, float TargetX, float TargetY, Vector2i mousePosition)
 {
 	Ball_InFlight = true;
 	Fireball_Position.x = startX;
@@ -57,6 +58,9 @@ void Megic::Cast(float startX, float startY, float TargetX, float TargetY)
 	distanceMinY = startY - range;
 
 	// position fireball ready to be draw
+	float angle = (atan2(mousePosition.y - ResolutionM.y / 2, mousePosition.x - ResolutionM.x / 2) * 180) / 3.141;
+	Fireball_Shape.setRotation(angle);
+
 	Fireball_Shape.setPosition(Fireball_Position);
 }
 
@@ -65,7 +69,7 @@ FloatRect Megic::getPosition()
 	return Fireball_Shape.getGlobalBounds();
 }
 
-CircleShape Megic::getShape()
+Sprite Megic::getShape()
 {
 	return Fireball_Shape;
 }
@@ -73,6 +77,12 @@ CircleShape Megic::getShape()
 CircleShape Megic::getBoomShape()
 {
 	return BoomShape;
+}
+
+void Megic::RecieveResolution(Vector2f resolutionM)
+{
+	ResolutionM.x = resolutionM.x;
+	ResolutionM.y = resolutionM.y;
 }
 
 void Megic::stop()
@@ -110,7 +120,7 @@ void Megic::updateBoom(float elapsedTime)
 		Boomtime += elapsedTime;
 	}
 
-	if (Boomtime >= 2)
+	if (Boomtime >= BoomDelay)
 	{
 		BoomActive = false;
 		Boomtime = 0;

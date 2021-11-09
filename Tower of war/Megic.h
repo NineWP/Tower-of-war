@@ -5,14 +5,15 @@ class Megic
 {
 private:
 	Vector2f Fireball_Position;
-	CircleShape Fireball_Shape;
+	Sprite Fireball_Shape;
 	CircleShape BoomShape;
 	float Fireball_speed = 1000;
 	float Boomtime = 0;
+	int BoomDelay = 5;
 
 	bool Ball_InFlight = false;
 	bool BoomActive = false;
-
+	Vector2f ResolutionM;
 	float Fireball_DistanceX;
 	float Fireball_DistanceY;
 	float distanceMaxX, distanceMaxY, distanceMinX, distanceMinY;
@@ -22,11 +23,12 @@ public:
 
 	bool isInFlight();
 	bool BoomIsActive();
-	void Cast(float startX, float startY, float TargetX, float TargetY);
+	void Cast(float startX, float startY, float TargetX, float TargetY, Vector2i mousePosition);
 
 	FloatRect getPosition();
-	CircleShape getShape();
+	Sprite getShape();
 	CircleShape getBoomShape();
+	void RecieveResolution(Vector2f resolutionM);
 
 	void stop();
 	void update(float elapsedTime);

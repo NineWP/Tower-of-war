@@ -288,3 +288,8 @@ int Player::getHealth()
 	return Player_Health;
 }
 
+Vector2f Player::getResolution()
+{
+	return Resolution;
+}
+
