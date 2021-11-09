@@ -5,7 +5,7 @@ Megic::Megic()
 	Fireball_Shape = Sprite(TextureHolder::GetTexture("graphics/fire_ball.png"));
 	Fireball_Shape.setOrigin(20, 10);
 	BoomShape.setRadius(100.f);
-	BoomShape.setOrigin(50, 50);
+	BoomShape.setOrigin(100, 100);
 	BoomShape.setFillColor(Color::Red);
 }
 

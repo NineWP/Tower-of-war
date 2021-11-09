@@ -8,7 +8,7 @@ int main()
 
     enum class State // All State of the game
     {
-        PAUSED, LEVELING_UP, GAME_OVER, PLAYING
+        PAUSED, LEVELING_UP, GAME_OVER, PLAYING, SCORE_MENU
     };
     
     State state = State::GAME_OVER; // Start of the State
@@ -320,8 +320,8 @@ int main()
             {
 
                 srand((int)time(0));
-                int map_randomY = (rand() % 4) + 1;
-                int map_randomX = (rand() % 4) + 1;
+                int map_randomY = (rand() % 3) + 1;
+                int map_randomX = (rand() % 3) + 1;
                 wave++;
                 arena.width = 500 * map_randomX;
                 arena.height = 500 * map_randomY;
@@ -335,7 +335,7 @@ int main()
                 HealthPickUp.setArena(arena);
                 ManaPickUp.setArena(arena);
 
-                numMonsters = (3 * wave) + map_randomX;
+                numMonsters = wave * map_randomX + map_randomY;
 
                 delete[] monsters;
                 monsters = createHorde(numMonsters, arena);

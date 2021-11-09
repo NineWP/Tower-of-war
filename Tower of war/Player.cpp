@@ -9,7 +9,7 @@ Player::Player()
 	Player_Texture.loadFromFile("graphics/player.png");
 	Player_Sprite.setTexture(Player_Texture);
 
-	Player_Sprite.setOrigin(25, 25);
+	Player_Sprite.setOrigin(21, 19);
 
 	Attack_Sprite = Sprite(TextureHolder::GetTexture("graphics/Attack.png"));
 	Attack_Sprite.setOrigin(25, 25);

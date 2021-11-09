@@ -12,18 +12,21 @@ void Monsters::spawn(float startX, float startY, int type, int seed)
 	case 0:
 		// Org 
 		Monster_Sprite = Sprite(TextureHolder::GetTexture("graphics/org.png"));
+		Monster_Sprite.setOrigin(34, 26);
 		Monster_Speed = Org_Speed;
 		Monster_Health = Org_HP;
 		break;
 	case 1:
 		// Goblin
 		Monster_Sprite = Sprite(TextureHolder::GetTexture("graphics/goblin.png"));
+		Monster_Sprite.setOrigin(25, 30);
 		Monster_Speed = Goblin_Speed;
 		Monster_Health = Goblin_HP;
 		break;
 	case 2:
 		// Slime
 		Monster_Sprite = Sprite(TextureHolder::GetTexture("graphics/slime.png"));
+		Monster_Sprite.setOrigin(15, 13);
 		Monster_Speed = Slime_Speed;
 		Monster_Health = Slime_HP;
 		break;
@@ -38,8 +41,6 @@ void Monsters::spawn(float startX, float startY, int type, int seed)
 	// Start position
 	Monster_Position.x = startX;
 	Monster_Position.y = startY;
-
-	Monster_Sprite.setOrigin(25, 25);
 	Monster_Sprite.setPosition(Monster_Position);
 }
 
