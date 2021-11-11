@@ -160,6 +160,7 @@
     <ClInclude Include="Monsters.h" />
     <ClInclude Include="pickUp.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="Textbox.h" />
     <ClInclude Include="TextureHolder.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

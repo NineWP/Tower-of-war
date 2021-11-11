@@ -1,0 +1,6 @@
+honda 80
+jarvan 30
+babara 20
+jimme 10
+ak 7
+ll 5

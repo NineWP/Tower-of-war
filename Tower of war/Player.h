@@ -1,5 +1,11 @@
 #pragma once
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
 #include <sstream>
+#include <iostream>
+#include <utility>
+#include <algorithm>
+#include <vector>
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 #include <SFML/Window.hpp>
@@ -10,6 +16,7 @@
 #include "TextureHolder.h"
 #include "Megic.h"
 #include "pickUp.h"
+#include "Textbox.h"
 using namespace sf;
 
 class Player

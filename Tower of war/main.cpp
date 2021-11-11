@@ -1,5 +1,54 @@
 #include "Player.h"
+#include <iostream>
 using namespace sf;
+
+// manage Score ///////////////////////////////////////////////////////////////////////////////////////////////////////// 
+FILE* fp;
+char temp[255];
+int playerScore[6];
+string name[6];
+vector <pair<int, string>> userScore;
+
+
+void SortScore(string Name, int Score)
+{
+    playerScore[5] = 0;
+    fp = fopen("gamedata/hiScore.txt", "r");
+    for (int i = 0; i < 5; i++)
+    {
+        fscanf(fp, "%s", &temp);
+        name[i] = temp;
+        cout << "name = " << name[i] << endl;
+        fscanf(fp, "%d", &playerScore[i]);
+        userScore.push_back(make_pair(playerScore[i], name[i]));
+    }
+    fclose(fp);
+    fopen("gamedata/hiScore.txt", "w");
+    name[5] = Name;
+    playerScore[5] = Score;
+    cout << "name[5] = " << name[5] << " Score[5] = " << playerScore[5] << endl;
+    userScore.push_back(make_pair(playerScore[5], name[5]));
+    sort(userScore.begin(), userScore.end());
+    for (int i = 0; i < 6; i++)
+    {
+        cout << userScore[i].second << " " << userScore[i].first << endl;
+    }
+
+    for (int i = 5; i >= 0; i--)
+    {
+        strcpy(temp, userScore[i].second.c_str());
+        fprintf(fp, "%s %d\n", temp, userScore[i].first);
+    }
+    fclose(fp);
+
+    for (int i = 0; i < 6; i++)
+    {
+        cout << "------------------------------\n";
+        cout << userScore[i].second << " " << userScore[i].first << endl;
+    }
+
+}
+
 
 int main()
 
@@ -8,10 +57,10 @@ int main()
 
     enum class State // All State of the game
     {
-        PAUSED, LEVELING_UP, GAME_OVER, PLAYING, SCORE_MENU
+        PAUSED, LEVELING_UP, GAME_OVER, PLAYING, MENU, SCORE, ENTER_NAME
     };
     
-    State state = State::GAME_OVER; // Start of the State
+    State state = State::MENU; // Start of the State
 
     // Get Screen resolution and create window
     Vector2f resolution;                              
@@ -37,6 +86,7 @@ int main()
     int attackRate = 3;
 
     IntRect arena;
+    int highScore = playerScore[0];
 
     VertexArray backGround;
     Texture textureBackGround;
@@ -59,15 +109,19 @@ int main()
     pickUp HealthPickUp(1);
     pickUp ManaPickUp(2);
 
-    int score = 0;
-    int highScore = 0;
-
     // HUD and Text ///////////////////////////////////////////////////////////////////////////////////////////////////////
     // Home / Game Over screen
     Sprite spriteGameOver;
     Texture texTureGameOver = TextureHolder::GetTexture("graphics/wallpaper.png");
     spriteGameOver.setTexture(texTureGameOver);
     spriteGameOver.setPosition(0, 0);
+
+    // Textbox
+    Sprite spriteNameBox;
+    Texture textureNameBox = TextureHolder::GetTexture("graphics/textbox.png");
+    spriteNameBox.setTexture(textureNameBox);
+    spriteNameBox.setOrigin(spriteNameBox.getGlobalBounds().width / 2, spriteNameBox.getGlobalBounds().height / 2);
+    spriteNameBox.setPosition(960, 540);
 
     // view for HUD
     View hudView(FloatRect(0, 0, resolution.x, resolution.y));
@@ -90,13 +144,23 @@ int main()
     pauseText.setPosition(750, 420);
     pauseText.setString("Press Enter \nto continue");
 
-    // Game Over Text
-    Text gameOverText;
-    gameOverText.setFont(font);
-    gameOverText.setCharacterSize(72);
-    gameOverText.setFillColor(Color::White);
-    gameOverText.setPosition(280, 540);
-    gameOverText.setString("Click here to Challenge");
+    // Main menu Text
+    Text menuText[3];
+
+    for (int i = 0; i < 3; i++)
+    {
+        menuText[i].setFont(font);
+        menuText[i].setCharacterSize(72);
+        menuText[i].setFillColor(Color::White);
+    }
+    menuText[0].setPosition(480, 440);
+    menuText[0].setString("Challenge");
+
+    menuText[1].setPosition(480, 590);
+    menuText[1].setString("Score");
+
+    menuText[2].setPosition(480, 740);
+    menuText[2].setString("Exit");
 
     // Leveling up
     Text levelUpText;
@@ -129,7 +193,7 @@ int main()
     scoreText.setPosition(1500, 0);
 
     // Load High score from file
-    ifstream inputfile("gamedata/score.txt");
+    ifstream inputfile("gamedata/highestScore.txt");
     if (inputfile.is_open())
     {
         inputfile >> highScore;
@@ -173,14 +237,23 @@ int main()
 
     // How often (in frame) should we update the HUD
     int fpsMeasurementFrameInterval = 1;
+    int mouseX, mouseY;
 
+    // Textbox playername
+    Textbox textbox1(36, true);
+    textbox1.setFont(font);
+    textbox1.setPosition({ 740, 520 });
+    textbox1.setLimit(true, 20);
 
     while (window.isOpen())
     {
         Event event;
         while (window.pollEvent(event))
-        {
-            if (event.type == Event::KeyPressed)
+        {   //cout << event.mouseMove.x << " " << event.mouseMove.y << endl;
+            mouseX = event.mouseButton.x;
+            mouseY = event.mouseButton.y;
+            //cout << mouseX << " " << mouseY << endl;
+            if (event.type)
             {
                 if (event.key.code == Keyboard::Return && state == State::PLAYING)
                 {
@@ -191,16 +264,40 @@ int main()
                     state = State::PLAYING;
                     clock.restart();
                 }
-                else if (event.key.code == Keyboard::Return && state == State::GAME_OVER)
+                else if (event.mouseButton.button == Mouse::Left &&
+                    (mouseX >= 480 && mouseX <= 815) &&
+                    (mouseY >= 460 && mouseY <= 525) &&
+                    state == State::MENU) // mouse button pressed
                 {
+                    textbox1.DeleteString();
+                    state = State::ENTER_NAME;
+                }
+                else if (event.key.code == Keyboard::Return && state == State::ENTER_NAME)
+                {
+                    name[5] = textbox1.getText();
+                    cout << textbox1.getText() << " " << name[5];
                     state = State::LEVELING_UP;
                     wave = 0;
-                    score = 0;
+                    playerScore[5] = 0;
+                    maxMana = 10;
                     Mana = maxMana;
                     castRate = 5;
                     player.resetPlayerState();
                 }
+                else if (event.key.code == Keyboard::Return && state == State::GAME_OVER)
+                {
+                    state = State::MENU;
+                }
+                switch (event.type)
+                {
+                case Event::TextEntered:
+                    textbox1.typedOn(event);
+                }
+                
             }
+            
+            
+            
         } // End event Polling
 
         if (Keyboard::isKeyPressed(Keyboard::Escape))
@@ -421,10 +518,11 @@ int main()
 
                             if (monsters[j].hit())
                             {
-                                score += 10;
-                                if (score > highScore)
+                                playerScore[5] += 10;
+
+                                if (playerScore[5] > highScore)
                                 {
-                                    highScore = score;
+                                    highScore = playerScore[5];
                                 }
 
                                 numMonstersAlive--;
@@ -439,10 +537,11 @@ int main()
                         {
                             if (monsters[j].hit())
                             {
-                                score += 10;
-                                if (score > highScore)
+                                playerScore[5] += 10;
+
+                                if (playerScore[5] > highScore)
                                 {
-                                    highScore = score;
+                                    highScore = playerScore[5];
                                 }
 
                                 numMonstersAlive--;
@@ -457,10 +556,11 @@ int main()
                         {
                             if (monsters[j].hit())
                             {
-                                score += 10;
-                                if (score > highScore)
+                                playerScore[5] += 10;
+
+                                if (playerScore[5] > highScore)
                                 {
-                                    highScore = score;
+                                    highScore = playerScore[5];
                                 }
 
                                 numMonstersAlive--;
@@ -488,7 +588,10 @@ int main()
                     if (player.getHealth() <= 0)
                     {
                         state = State::GAME_OVER;
-                        ofstream outputfile("gamedata/score.txt");
+                        userScore.clear();
+                        SortScore(name[5], playerScore[5]);
+                        textbox1.DeleteString();
+                        ofstream outputfile("gamedata/highestScore.txt");
                         outputfile << highScore;
                         outputfile.close();
                     }
@@ -529,7 +632,7 @@ int main()
                 manaText.setString(ssMana.str());
 
                 // Update Score Text
-                ssScore << "Score : " << score;
+                ssScore << "Score : " << playerScore[5];
                 scoreText.setString(ssScore.str());
 
                 // Update High score Text
@@ -612,10 +715,24 @@ int main()
         {
             window.draw(pauseText);
         }
+        if (state == State::ENTER_NAME)
+        {
+            window.draw(spriteGameOver);
+            window.draw(spriteNameBox);
+            textbox1.drawTo(window);
+        }
         if (state == State::GAME_OVER)
         {
             window.draw(spriteGameOver);
-            window.draw(gameOverText);
+        }
+        if (state == State::MENU)
+        {
+            window.draw(spriteGameOver);
+            for (int i = 0; i < 3; i++)
+            {
+            window.draw(menuText[i]);
+            }
+            
         }
 
         window.display();
