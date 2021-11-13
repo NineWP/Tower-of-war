@@ -1,6 +1,6 @@
 king 950
-jj 50
-lava 10
-him 5
-har 4
-forse 3
+KARATEE 879
+elfe 684
+jame 220
+nine 200
+32 40
