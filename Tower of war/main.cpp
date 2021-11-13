@@ -39,12 +39,16 @@ void SortScore(string Name, int Score)
         strcpy(temp, userScore[i].second.c_str());
         fprintf(fp, "%s %d\n", temp, userScore[i].first);
     }
+
     fclose(fp);
 
-    for (int i = 0; i < 6; i++)
+    for (int i = 0, j = 5; i < 6, j >= 0; i++, j--)
     {
+        name[i] = userScore[j].second;
+        playerScore[i] = userScore[j].first;
         cout << "------------------------------\n";
         cout << userScore[i].second << " " << userScore[i].first << endl;
+        cout << name[i] << " " << playerScore[i] << endl;
     }
 
 }
@@ -123,6 +127,20 @@ int main()
     spriteNameBox.setOrigin(spriteNameBox.getGlobalBounds().width / 2, spriteNameBox.getGlobalBounds().height / 2);
     spriteNameBox.setPosition(960, 540);
 
+    // Scorebox
+    Sprite spriteScoreBox;
+    Texture textureScoreBox = TextureHolder::GetTexture("graphics/scorebox.png");
+    spriteScoreBox.setTexture(textureScoreBox);
+    spriteScoreBox.setOrigin(spriteScoreBox.getGlobalBounds().width / 2, spriteScoreBox.getGlobalBounds().height / 2);
+    spriteScoreBox.setPosition(960, 540);
+
+    Sprite spriteRankBox;
+    Texture textureRankBox = TextureHolder::GetTexture("graphics/rankbox.png");
+    spriteRankBox.setTexture(textureRankBox);
+    spriteRankBox.setOrigin(spriteRankBox.getGlobalBounds().width / 2, spriteRankBox.getGlobalBounds().height / 2);
+    spriteRankBox.setRotation(90);
+    spriteRankBox.setPosition(960, 540);
+
     // view for HUD
     View hudView(FloatRect(0, 0, resolution.x, resolution.y));
 
@@ -190,7 +208,29 @@ int main()
     scoreText.setFont(font);
     scoreText.setCharacterSize(50);
     scoreText.setFillColor(Color::White);
-    scoreText.setPosition(1500, 0);
+    scoreText.setPosition(1400, 0);
+
+    // Your Score
+    Text yourScoreText;
+    yourScoreText.setFont(font);
+    yourScoreText.setCharacterSize(72);
+    yourScoreText.setFillColor(Color::Black);
+    yourScoreText.setPosition(663, 552);
+
+    Text enterToConText;
+    enterToConText.setFont(font);
+    enterToConText.setCharacterSize(72);
+    enterToConText.setFillColor(Color::Black);
+    enterToConText.setPosition(663, 852);
+    enterToConText.setString("Enter to Continue");
+
+    // Player Rank
+    Text rankText;
+    rankText.setFont(font);
+    rankText.setCharacterSize(72);
+    rankText.setFillColor(Color::Black);
+    rankText.setPosition(750, 60);
+    rankText.setString("Player Rank");
 
     // Load High score from file
     ifstream inputfile("gamedata/highestScore.txt");
@@ -203,9 +243,6 @@ int main()
     // High score
     Text highScoreText;
     highScoreText.setFont(font);
-    highScoreText.setCharacterSize(50);
-    highScoreText.setFillColor(Color::White);
-    highScoreText.setPosition(1500, 60);
     stringstream s;
     s << "High score : " << highScore;
     highScoreText.setString(s.str());
@@ -245,15 +282,37 @@ int main()
     textbox1.setPosition({ 740, 520 });
     textbox1.setLimit(true, 20);
 
+    userScore.clear();
+    SortScore("Guest", 0);
+
+    // Ranker Data
+    Text rankerName[5], rankerScore[5];
+    stringstream ssRankerScore[5];
+    for (int i = 0; i < 5; i++)
+    {
+        rankerName[i].setFont(font);
+        rankerName[i].setCharacterSize(72);
+        rankerName[i].setFillColor(Color::Black);
+        rankerName[i].setPosition(570, 250 + (100 * i));
+        rankerName[i].setString(name[i]);
+
+        rankerScore[i].setFont(font);
+        rankerScore[i].setCharacterSize(72);
+        rankerScore[i].setFillColor(Color::Black);
+        rankerScore[i].setPosition(1150, 250 + (100 * i));
+        ssRankerScore[i] << playerScore[i];
+        rankerScore[i].setString(ssRankerScore[i].str());
+    }
+
     while (window.isOpen())
     {
         Event event;
         while (window.pollEvent(event))
-        {   //cout << event.mouseMove.x << " " << event.mouseMove.y << endl;
+        {   cout << event.mouseMove.x << " " << event.mouseMove.y << endl;
             mouseX = event.mouseButton.x;
             mouseY = event.mouseButton.y;
             //cout << mouseX << " " << mouseY << endl;
-            if (event.type)
+            if (event.type == event.KeyPressed || event.type == event.MouseButtonPressed)
             {
                 if (event.key.code == Keyboard::Return && state == State::PLAYING)
                 {
@@ -267,10 +326,24 @@ int main()
                 else if (event.mouseButton.button == Mouse::Left &&
                     (mouseX >= 480 && mouseX <= 815) &&
                     (mouseY >= 460 && mouseY <= 525) &&
-                    state == State::MENU) // mouse button pressed
+                    state == State::MENU) // mouse button pressed Challenge
                 {
                     textbox1.DeleteString();
                     state = State::ENTER_NAME;
+                }
+                else if (event.mouseButton.button == Mouse::Left &&
+                    (mouseX >= 480 && mouseX <= 670) &&
+                    (mouseY >= 610 && mouseY <= 670) &&
+                    state == State::MENU) // mouse button pressed Score
+                {
+                    state = State::SCORE;
+                }
+                else if (event.mouseButton.button == Mouse::Left &&
+                    (mouseX >= 480 && mouseX <= 625) &&
+                    (mouseY >= 755 && mouseY <= 820) &&
+                    state == State::MENU) // mouse button pressed Exit
+                {
+                    window.close();
                 }
                 else if (event.key.code == Keyboard::Return && state == State::ENTER_NAME)
                 {
@@ -284,16 +357,16 @@ int main()
                     castRate = 5;
                     player.resetPlayerState();
                 }
-                else if (event.key.code == Keyboard::Return && state == State::GAME_OVER)
+                else if (event.key.code == Keyboard::Return && (state == State::GAME_OVER || state == State::SCORE))
                 {
                     state = State::MENU;
                 }
-                switch (event.type)
-                {
-                case Event::TextEntered:
-                    textbox1.typedOn(event);
-                }
                 
+            }
+            switch (event.type)
+            {
+            case Event::TextEntered:
+                    textbox1.typedOn(event);
             }
             
             
@@ -450,6 +523,10 @@ int main()
         // Update frame /////////////////////////////////////////////////////////////////////////////////////////
         if (state == State::PLAYING)
         {
+            highScoreText.setCharacterSize(50);
+            highScoreText.setFillColor(Color::White);
+            highScoreText.setPosition(1400, 60);
+
             Time dt = clock.restart();
 
             gameTimeTotal += dt;
@@ -594,6 +671,15 @@ int main()
                         ofstream outputfile("gamedata/highestScore.txt");
                         outputfile << highScore;
                         outputfile.close();
+                        for (int i = 0; i < 5; i++)
+                        {
+                            rankerName[i].setString(name[i]);
+                            cout << "player name = " << name[i] << endl;
+                            cout << "player score = " << playerScore[i] << endl;
+                            ssRankerScore[i].clear();
+                            ssRankerScore[i] << playerScore[i];
+                            rankerScore[i].setString(ssRankerScore[i].str());
+                        }
                     }
                 }
             }
@@ -623,6 +709,7 @@ int main()
                 //Update game HUD text
                 stringstream ssMana;
                 stringstream ssScore;
+                stringstream ssYourScore;
                 stringstream ssHighScore;
                 stringstream ssWave;
                 stringstream ssMonsterAlive;
@@ -634,6 +721,8 @@ int main()
                 // Update Score Text
                 ssScore << "Score : " << playerScore[5];
                 scoreText.setString(ssScore.str());
+                ssYourScore << "Your Score : " << playerScore[5] << "\n\n\nEnter to Continue";
+                yourScoreText.setString(ssYourScore.str());
 
                 // Update High score Text
                 ssHighScore << "High score : " << highScore;
@@ -724,6 +813,12 @@ int main()
         if (state == State::GAME_OVER)
         {
             window.draw(spriteGameOver);
+            window.draw(spriteScoreBox);
+            window.draw(yourScoreText);
+            highScoreText.setCharacterSize(72);
+            highScoreText.setFillColor(Color::Black);
+            highScoreText.setPosition(663, 452);
+            window.draw(highScoreText);
         }
         if (state == State::MENU)
         {
@@ -731,8 +826,19 @@ int main()
             for (int i = 0; i < 3; i++)
             {
             window.draw(menuText[i]);
+            }     
+        }
+        if (state == State::SCORE)
+        {
+            window.draw(spriteGameOver);
+            window.draw(spriteRankBox);
+            for (int i = 0; i < 5; i++)
+            {
+                window.draw(rankerName[i]);
+                window.draw(rankerScore[i]);
             }
-            
+            window.draw(rankText);
+            window.draw(enterToConText);
         }
 
         window.display();
