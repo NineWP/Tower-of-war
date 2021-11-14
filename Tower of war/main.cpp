@@ -163,6 +163,26 @@ int main()
 	pauseText.setPosition(750, 420);
 	pauseText.setString("Press Enter \nto continue");
 
+	// Tower of war text
+	Text towerOfWarText;
+	towerOfWarText.setFont(font);
+	towerOfWarText.setCharacterSize(196);
+	towerOfWarText.setFillColor(Color::White);
+	towerOfWarText.setOutlineColor(Color::Black);
+	towerOfWarText.setOutlineThickness(5);
+	towerOfWarText.setPosition(300, 60);
+	towerOfWarText.setString("Tower of war");
+
+
+	Text EnterNameText;
+	EnterNameText.setFont(font);
+	EnterNameText.setCharacterSize(54);
+	EnterNameText.setFillColor(Color::White);
+	EnterNameText.setOutlineColor(Color::Black);
+	EnterNameText.setOutlineThickness(2);
+	EnterNameText.setPosition(750, 350);
+	EnterNameText.setString("Enter your name");
+
 	// Main menu Text
 	Text menuText[3];
 
@@ -809,6 +829,7 @@ int main()
 		{
 			window.draw(spriteGameOver);
 			window.draw(spriteNameBox);
+			window.draw(EnterNameText);
 			textbox1.drawTo(window);
 		}
 		if (state == State::GAME_OVER)
@@ -824,6 +845,7 @@ int main()
 		if (state == State::MENU)
 		{
 			window.draw(spriteGameOver);
+			window.draw(towerOfWarText);
 			for (int i = 0; i < 3; i++)
 			{
 				window.draw(menuText[i]);
