@@ -1,6 +1,4 @@
 #include "Player.h"
-#include <iostream>
-using namespace sf;
 
 // manage Score ///////////////////////////////////////////////////////////////////////////////////////////////////////// 
 FILE* fp;
@@ -18,7 +16,7 @@ void SortScore(string Name, int Score)
 	{
 		fscanf(fp, "%s", &temp);
 		name[i] = temp;
-		cout << "name = " << name[i] << endl;
+		//cout << "name = " << name[i] << endl;
 		fscanf(fp, "%d", &playerScore[i]);
 		userScore.push_back(make_pair(playerScore[i], name[i]));
 	}
@@ -26,12 +24,12 @@ void SortScore(string Name, int Score)
 	fopen("gamedata/hiScore.txt", "w");
 	name[5] = Name;
 	playerScore[5] = Score;
-	cout << "name[5] = " << name[5] << " Score[5] = " << playerScore[5] << endl;
+	//cout << "name[5] = " << name[5] << " Score[5] = " << playerScore[5] << endl;
 	userScore.push_back(make_pair(playerScore[5], name[5]));
 	sort(userScore.begin(), userScore.end());
 	for (int i = 0; i < 6; i++)
 	{
-		cout << userScore[i].second << " " << userScore[i].first << endl;
+		//cout << userScore[i].second << " " << userScore[i].first << endl;
 	}
 
 	for (int i = 5; i >= 0; i--)
@@ -46,9 +44,9 @@ void SortScore(string Name, int Score)
 	{
 		name[i] = userScore[j].second;
 		playerScore[i] = userScore[j].first;
-		cout << "------------------------------\n";
+		/*cout << "------------------------------\n";
 		cout << userScore[i].second << " " << userScore[i].first << endl;
-		cout << name[i] << " " << playerScore[i] << endl;
+		cout << name[i] << " " << playerScore[i] << endl;*/
 	}
 
 }
@@ -160,8 +158,10 @@ int main()
 	pauseText.setFont(font);
 	pauseText.setCharacterSize(72);
 	pauseText.setFillColor(Color::White);
-	pauseText.setPosition(750, 420);
-	pauseText.setString("Press Enter \nto continue");
+	pauseText.setOutlineColor(Color::Black);
+	pauseText.setOutlineThickness(3);
+	pauseText.setPosition(550, 420);
+	pauseText.setString("Press Enter to continue\nPress Esc to Exit game");
 
 	// Tower of war text
 	Text towerOfWarText;
@@ -242,8 +242,8 @@ int main()
 	enterToConText.setFont(font);
 	enterToConText.setCharacterSize(72);
 	enterToConText.setFillColor(Color::Black);
-	enterToConText.setPosition(663, 852);
-	enterToConText.setString("Enter to Continue");
+	enterToConText.setPosition(563, 852);
+	enterToConText.setString("ESC to return to Menu");
 
 	// Player Rank
 	Text rankText;
@@ -325,12 +325,59 @@ int main()
 		rankerScore[i].setString(ssRankerScore[i].str());
 	}
 
+	SoundBuffer dodgeBuffer;
+	dodgeBuffer.loadFromFile("sounds/dodge.wav");
+	Sound dodgeSound;
+	dodgeSound.setBuffer(dodgeBuffer);
+
+	SoundBuffer gameOverBuffer;
+	gameOverBuffer.loadFromFile("sounds/gameover.wav");
+	Sound gameOverSound;
+	gameOverSound.setBuffer(gameOverBuffer);
+
+	SoundBuffer getHpBuffer;
+	getHpBuffer.loadFromFile("sounds/getHP.wav");
+	Sound getHpSound;
+	getHpSound.setBuffer(getHpBuffer);
+
+	SoundBuffer getManaBuffer;
+	getManaBuffer.loadFromFile("sounds/getmana.wav");
+	Sound GetManaSound;
+	GetManaSound.setBuffer(getManaBuffer);
+
+	SoundBuffer levelUpBuffer;
+	levelUpBuffer.loadFromFile("sounds/levelup.wav");
+	Sound levelUpSound;
+	levelUpSound.setBuffer(levelUpBuffer);
+
+	SoundBuffer playerGetHitBuffer;
+	playerGetHitBuffer.loadFromFile("sounds/playergethit.wav");
+	Sound playerGetHitSound;
+	playerGetHitSound.setBuffer(playerGetHitBuffer);
+
+	SoundBuffer wooshBuffer;
+	wooshBuffer.loadFromFile("sounds/woosh.wav");
+	Sound wooshSound;
+	wooshSound.setBuffer(wooshBuffer);
+
+	SoundBuffer castBuffer;
+	castBuffer.loadFromFile("sounds/cast.wav");
+	Sound castSound;
+	castSound.setBuffer(castBuffer);
+
+	SoundBuffer menuBuffer;
+	menuBuffer.loadFromFile("sounds/menu.wav");
+	Sound menuSound;
+	menuSound.setBuffer(menuBuffer);
+
+	menuSound.play();
+
 	while (window.isOpen())
 	{
 		Event event;
 		while (window.pollEvent(event))
 		{
-			cout << event.mouseMove.x << " " << event.mouseMove.y << endl;
+			//cout << event.mouseMove.x << " " << event.mouseMove.y << endl;
 			mouseX = event.mouseButton.x;
 			mouseY = event.mouseButton.y;
 			//cout << mouseX << " " << mouseY << endl;
@@ -367,10 +414,14 @@ int main()
 				{
 					window.close();
 				}
+				else if (event.key.code == Keyboard::Escape && state == State::ENTER_NAME)
+				{
+					state = State::MENU;
+				}
 				else if (event.key.code == Keyboard::Return && state == State::ENTER_NAME)
 				{
 					name[5] = textbox1.getText();
-					cout << textbox1.getText() << " " << name[5];
+					/*cout << textbox1.getText() << " " << name[5];*/
 					state = State::LEVELING_UP;
 					wave = 0;
 					playerScore[5] = 0;
@@ -379,29 +430,30 @@ int main()
 					castRate = 5;
 					player.resetPlayerState();
 				}
-				else if (event.key.code == Keyboard::Return && (state == State::GAME_OVER || state == State::SCORE))
+				else if (event.key.code == Keyboard::Escape && state == State::SCORE)
 				{
 					state = State::MENU;
 				}
-
+				else if (event.key.code == Keyboard::Return && state == State::GAME_OVER)
+				{
+					menuSound.play();
+					state = State::MENU;
+				}
+				else if (event.key.code == Keyboard::Escape && state == State::PAUSED)
+				{
+					window.close();
+				}
 			}
 			switch (event.type)
 			{
 			case Event::TextEntered:
 				textbox1.typedOn(event);
 			}
-
-
-
 		} // End event Polling
-
-		if (Keyboard::isKeyPressed(Keyboard::Escape))
-		{
-			window.close();
-		}
 
 		if (state == State::PLAYING) // Player Control ///////////////////////////////////////////////////////////////////
 		{
+			menuSound.stop();
 			if (Keyboard::isKeyPressed(Keyboard::W))
 			{
 				player.moveUp();
@@ -438,6 +490,7 @@ int main()
 			{
 				if (gameTimeTotal.asMilliseconds() - LastDash.asMilliseconds() > 1000 / DashRate)
 				{
+					dodgeSound.play();
 					player.moveDash();
 					LastDash = gameTimeTotal;
 				}
@@ -448,6 +501,7 @@ int main()
 			{
 				if (gameTimeTotal.asMilliseconds() - LastPressed_attack.asMilliseconds() > 1000 / attackRate)
 				{
+					wooshSound.play();
 					player.attack(player.getPlayerCenter().x, player.getPlayerCenter().y, mouseWorld_Position.x, mouseWorld_Position.y, Mouse::getPosition());
 					LastPressed_attack = gameTimeTotal;
 				}
@@ -458,6 +512,7 @@ int main()
 			{
 				if (gameTimeTotal.asMilliseconds() - LastPressed.asMilliseconds() > 1000 / castRate && Mana > 0)
 				{
+					castSound.play();
 					fireball[currentFireball].RecieveResolution(player.getResolution());
 					fireball[currentFireball].Cast(player.getPlayerCenter().x, player.getPlayerCenter().y, mouseWorld_Position.x, mouseWorld_Position.y, Mouse::getPosition());
 
@@ -628,6 +683,7 @@ int main()
 
 								if (numMonstersAlive == 0)
 								{
+									levelUpSound.play();
 									state = State::LEVELING_UP;
 								}
 							}
@@ -647,6 +703,7 @@ int main()
 
 								if (numMonstersAlive == 0)
 								{
+									levelUpSound.play();
 									state = State::LEVELING_UP;
 								}
 							}
@@ -666,6 +723,7 @@ int main()
 
 								if (numMonstersAlive == 0)
 								{
+									levelUpSound.play();
 									state = State::LEVELING_UP;
 								}
 							}
@@ -681,15 +739,16 @@ int main()
 				{
 					if (player.hit(gameTimeTotal))
 					{
-						//
+						playerGetHitSound.play();
 					}
 
 					if (player.getHealth() <= 0)
 					{
+						gameOverSound.play();
 						state = State::GAME_OVER;
 						userScore.clear();
 						currentScore = playerScore[5];
-						cout << "current Score = " << currentScore << endl;
+						/*cout << "current Score = " << currentScore << endl;*/
 						SortScore(name[5], playerScore[5]);
 						textbox1.DeleteString();
 						ofstream outputfile("gamedata/highestScore.txt");
@@ -698,8 +757,8 @@ int main()
 						for (int i = 0; i < 5; i++)
 						{
 							rankerName[i].setString(name[i]);
-							cout << "player name = " << name[i] << endl;
-							cout << "player score = " << playerScore[i] << endl;
+							/*cout << "player name = " << name[i] << endl;
+							cout << "player score = " << playerScore[i] << endl;*/
 							ssRankerScore[i].str("");
 							ssRankerScore[i] << playerScore[i];
 							rankerScore[i].setString(ssRankerScore[i].str());
@@ -711,10 +770,12 @@ int main()
 			// get the potion
 			if (player.getPosition().intersects(HealthPickUp.getPosition()) && HealthPickUp.isSpawned())
 			{
+				getHpSound.play();
 				player.increaseHealthLevel(HealthPickUp.gotIt());
 			}
 			if (player.getPosition().intersects(ManaPickUp.getPosition()) && ManaPickUp.isSpawned())
 			{
+				GetManaSound.play();
 				Mana += ManaPickUp.gotIt();
 			}
 
@@ -741,7 +802,7 @@ int main()
 			// Update Score Text
 			ssScore << "Score : " << playerScore[5];
 			scoreText.setString(ssScore.str());
-			cout << "current Score2 = " << currentScore << endl;
+			//cout << "current Score2 = " << currentScore << endl;
 			ssYourScore << "Your Score : " << currentScore << "\n\n\nEnter to Continue";
 			yourScoreText.setString(ssYourScore.str());
 

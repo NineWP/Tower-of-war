@@ -4,9 +4,8 @@ Megic::Megic()
 {
 	Fireball_Shape = Sprite(TextureHolder::GetTexture("graphics/fire_ball.png"));
 	Fireball_Shape.setOrigin(20, 10);
-	BoomShape.setRadius(100.f);
-	BoomShape.setOrigin(100, 100);
-	BoomShape.setFillColor(Color::Red);
+	boomShape = Sprite(TextureHolder::GetTexture("graphics/Boom.png"));
+	boomShape.setOrigin(100, 100);
 }
 
 bool Megic::isInFlight()
@@ -74,9 +73,9 @@ Sprite Megic::getShape()
 	return Fireball_Shape;
 }
 
-CircleShape Megic::getBoomShape()
+Sprite Megic::getBoomShape()
 {
-	return BoomShape;
+	return boomShape;
 }
 
 void Megic::RecieveResolution(Vector2f resolutionM)
@@ -129,11 +128,11 @@ void Megic::updateBoom(float elapsedTime)
 
 FloatRect Megic::getBoomPosition()
 {
-	return BoomShape.getGlobalBounds();
+	return boomShape.getGlobalBounds();
 }
 
 void Megic::Boom()
 {
 	BoomActive = true;
-	BoomShape.setPosition(Fireball_Position);
+	boomShape.setPosition(Fireball_Position);
 }

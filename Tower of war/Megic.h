@@ -6,7 +6,7 @@ class Megic
 private:
 	Vector2f Fireball_Position;
 	Sprite Fireball_Shape;
-	CircleShape BoomShape;
+	Sprite boomShape;
 	float Fireball_speed = 1000;
 	float Boomtime = 0;
 	int BoomDelay = 5;
@@ -27,7 +27,7 @@ public:
 
 	FloatRect getPosition();
 	Sprite getShape();
-	CircleShape getBoomShape();
+	Sprite getBoomShape();
 	void RecieveResolution(Vector2f resolutionM);
 
 	void stop();
