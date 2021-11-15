@@ -104,7 +104,7 @@ int main()
 	int currentFireball = 0;
 	int Mana = 10;
 	int maxMana = 10;
-	int castRate = 5; // ball/Sec.
+	int castRate = 2; // ball/Sec.
 	Time LastPressed;
 	Time LastPressed_attack;
 
@@ -148,6 +148,12 @@ int main()
 	Texture texTureManaIcon = TextureHolder::GetTexture("graphics/mana_icon.png");
 	spriteManaIcon.setTexture(texTureManaIcon);
 	spriteManaIcon.setPosition(20, 100);
+
+	// HP icon
+	Sprite spriteHPIcon;
+	Texture texTureHPIcon = TextureHolder::GetTexture("graphics/heart.png");
+	spriteHPIcon.setTexture(texTureHPIcon);
+	spriteHPIcon.setPosition(20, 0);
 
 	// Load the font
 	Font font;
@@ -206,15 +212,18 @@ int main()
 	levelUpText.setFont(font);
 	levelUpText.setCharacterSize(84);
 	levelUpText.setFillColor(Color::White);
+	levelUpText.setOutlineColor(Color::Black);
+	levelUpText.setOutlineThickness(4);
 	levelUpText.setPosition(80, 150);
 	stringstream levelUpStream;
 	levelUpStream <<
-		"1-Increased cast speed" <<
-		"\n2-Increased max mana" <<
-		"\n3-Increased max health" <<
-		"\n4-Increased running speed" <<
-		"\n5-More and better health potion" <<
-		"\n6-More and better mana potion";
+		"Press number button to select"
+		"\n\n1 - Increased casting megic speed" <<
+		"\n2 - Increased max mana" <<
+		"\n3 - Increased max health" <<
+		"\n4 - Increased running speed" <<
+		"\n5 - More and better health potion" <<
+		"\n6 - More and better mana potion";
 	levelUpText.setString(levelUpStream.str());
 
 	// Mana
@@ -288,7 +297,7 @@ int main()
 	// Health bar
 	RectangleShape healthBar;
 	healthBar.setFillColor(Color::Red);
-	healthBar.setPosition(20, 0);
+	healthBar.setPosition(70, 0);
 
 	// When did we last update the HUD
 	int framesSinceLastHUD_Update = 0;
@@ -869,6 +878,7 @@ int main()
 
 			// Draw HUD element
 			window.draw(spriteManaIcon);
+			window.draw(spriteHPIcon);
 			window.draw(manaText);
 			window.draw(scoreText);
 			window.draw(highScoreText);
