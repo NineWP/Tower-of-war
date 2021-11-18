@@ -189,6 +189,13 @@ int main()
 	EnterNameText.setPosition(750, 350);
 	EnterNameText.setString("Enter your name");
 
+	Text madeNameText;
+	madeNameText.setFont(font);
+	madeNameText.setCharacterSize(20);
+	madeNameText.setFillColor(Color::White);
+	madeNameText.setPosition(1500, 1050);
+	madeNameText.setString(" Made by 64010761 Worrapon Rangsee");
+
 	// Main menu Text
 	Text menuText[3];
 
@@ -921,6 +928,7 @@ int main()
 			{
 				window.draw(menuText[i]);
 			}
+			window.draw(madeNameText);
 		}
 		if (state == State::SCORE)
 		{
